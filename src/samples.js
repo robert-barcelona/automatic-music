@@ -7,16 +7,48 @@ const SAMPLE_PATH = './piano/'
 
 export const loadSampler = () => {
   const samples = getSamples()
-  return  new Tone.Sampler(samples,() => console.log('hoho')).toMaster()
+  const chorus = new Tone.Chorus(4, 2.5, 0.5);
+  const pingPong = new Tone.PingPongDelay(500, 0.32).toMaster();
+  const vibrato = new Tone.Vibrato()
+  return new Tone.Sampler(samples).connect(pingPong).toMaster()
 }
 export const loadSynth = () => {
-  return new Tone.PolySynth(6,Tone.MonoSynth).toMaster();
+  const chorus = new Tone.Chorus(4, 2.5, 0.5);
+  const pingPong = new Tone.PingPongDelay(500, 0.32).toMaster();
+const vibrato = new Tone.Vibrato()
+  const synth = new Tone.PolySynth(6, Tone.MonoSynth).connect(vibrato).connect(pingPong)
+  synth.set({
+    oscillator: {
+      type: 'sine'
+    },
+    envelope: {
+      attack: 1,
+      decay: 1,
+      sustain: 0.9,
+      release: 1
+    },
+    filter  : {
+      Q  : 3 ,
+      type  : "lowpass" ,
+      rolloff  : -24
+    }  ,
+    filterEnvelope: {
+      attack: 0.06,
+      decay: 0.2,
+      sustain: 0.5,
+      release: 1,
+      baseFrequency: 200,
+      octaves: 5,
+      exponent: 1.2
+    }
+  })
+  return synth;
 }
 
-export const loadOneSample = (which = 0)=> {
+export const loadOneSample = (which = 0) => {
   if (waves) {
 
-   return new Tone.Player(`piano/A0.mp3`).toMaster()
+    return new Tone.Player(`piano/A0.mp3`).toMaster()
   }
 }
 
@@ -24,7 +56,7 @@ export const loadOneSample = (which = 0)=> {
 export const loadSamples = () => {
 
   const promises = []
-const players = []
+  const players = []
   waves.forEach(url => {
     console.log(`sample path: ${SAMPLE_PATH}${url}`)
     const player = new Tone.Player(`${SAMPLE_PATH}${url}`).toMaster()

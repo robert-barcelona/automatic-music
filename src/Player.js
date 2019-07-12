@@ -58,7 +58,7 @@ class Player extends React.Component {
     try {
       UnmuteButton({context:Tone.context,title:'hello'})
 
-      const player = await loadSynth()
+      const player = await loadSampler()
 
       this.setState({player})
       setTimeout(this.playIt, 1000)
