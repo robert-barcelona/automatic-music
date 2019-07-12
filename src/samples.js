@@ -5,17 +5,18 @@ import Tone from 'tone'
 const SAMPLE_PATH = './piano/'
 
 
-export const load = () => {
+export const loadSampler = () => {
   const samples = getSamples()
-  console.log(samples)
   return  new Tone.Sampler(samples,() => console.log('hoho')).toMaster()
+}
+export const loadSynth = () => {
+  return new Tone.PolySynth(6,Tone.MonoSynth).toMaster();
 }
 
 export const loadOneSample = (which = 0)=> {
   if (waves) {
 
-    const player = new Tone.Player(`piano/A0.mp3`).toMaster()
-    return player
+   return new Tone.Player(`piano/A0.mp3`).toMaster()
   }
 }
 
