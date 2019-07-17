@@ -5,7 +5,7 @@ import UnmuteButton from 'unmute'
 import Button from '@material-ui/core/Button';
 import {makeStyles} from '@material-ui/core/styles';
 
-import {loadSampler, loadSynth, loadOneSample, loadSamples} from "./samples"
+import {loadSampler, loadSynth, loadOneSample, loadSamples, getDelay} from "./samples"
 
 import Slider from './RangeSlider'
 
@@ -17,6 +17,8 @@ class Player extends React.Component {
   setDurations = (durations) => this.setState({durations})
   setSpaces = (spaces) => this.setState({spaces})
   setNotes = (notes) => this.setState({notes})
+  setDelayTime = (delayTime) => this.setState({delayTime})
+  setDelayIntensity = (setDelayIntensity) => this.setState({setDelayIntensity})
 
 
   possibles = ['F', 'G#', 'C', 'C#', 'D#', 'G#', 'F']
@@ -29,6 +31,8 @@ class Player extends React.Component {
     durations: [500, 3000],
     spaces: [500, 2000],
     notes: [1, 3],
+    delayTime: .4,
+    delayIntensity: .25,
   }
 
   aleatoric = (limit, min = 0) => {
@@ -45,7 +49,7 @@ class Player extends React.Component {
     for (let i = 0; i < numberOfNotes; i++) {
       const note = `${possibles[aleatoric(possibles.length)]}${aleatoric(octaves[1], octaves[0])}`
       if (player) player.triggerAttackRelease(note, duration)
-      console.log(note,duration)
+      console.log(note, duration)
     }
     const time = aleatoric(spaces[1], spaces[0])
     setTimeout(this.playIt, time)
@@ -53,13 +57,14 @@ class Player extends React.Component {
   }
 
 
-
   startPlay = async () => {
     try {
-      UnmuteButton({context:Tone.context,title:'hello'})
+      const {state: {delayTime, delayIntensity}} = this
+      UnmuteButton({context: Tone.context, title: 'hello'})
 
       const player = await loadSampler()
-
+      const delay = getDelay(delayTime,delayIntensity)
+      player.connect(delay)
       this.setState({player})
       setTimeout(this.playIt, 1000)
     } catch (e) {
@@ -68,7 +73,7 @@ class Player extends React.Component {
   }
 
   render() {
-    const {startPlay, setDurations, setSpaces, setNotes, setOctaves, state: {durations, notes, spaces, octaves}} = this
+    const {startPlay, setDelayIntensity, setDelayTime, setDurations, setSpaces, setNotes, setOctaves, state: {durations, delayTime, delayIntensity, notes, spaces, octaves}} = this
     return (
 
       <div className="App">
@@ -79,6 +84,9 @@ class Player extends React.Component {
         <Slider transmitValues={setDurations} initialState={durations} min={250} max={8000} text={'Note Duration'}/>
         <Slider transmitValues={setSpaces} initialState={spaces} min={100} max={3000} text={'Rests'}/>
         <Slider transmitValues={setNotes} initialState={notes} min={1} max={5} text={'Number of Notes'}/>
+        <Slider transmitValues={setDelayTime} initialState={delayTime} min={.1} max={2} text={'Delay Time'}/>
+        <Slider transmitValues={setDelayIntensity} initialState={delayIntensity} min={0} max={.9}
+                text={'Delay Intensity'}/>
       </div>
     )
 

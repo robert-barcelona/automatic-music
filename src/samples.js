@@ -4,19 +4,21 @@ import Tone from 'tone'
 
 const SAMPLE_PATH = './piano/'
 
+export const getDelay = (time,intensity) => new Tone.PingPongDelay(time,intensity).toMaster()
+
 
 export const loadSampler = () => {
   const samples = getSamples()
   const chorus = new Tone.Chorus(4, 2.5, 0.5);
-  const pingPong = new Tone.PingPongDelay(500, 0.32).toMaster();
+  const pingPong = new Tone.PingPongDelay(.2, 0.52).toMaster();
   const vibrato = new Tone.Vibrato()
-  return new Tone.Sampler(samples).connect(pingPong).toMaster()
+  return new Tone.Sampler(samples).connect(pingPong).connect(chorus).connect(vibrato).toMaster()
 }
 export const loadSynth = () => {
   const chorus = new Tone.Chorus(4, 2.5, 0.5);
   const pingPong = new Tone.PingPongDelay(500, 0.32).toMaster();
 const vibrato = new Tone.Vibrato()
-  const synth = new Tone.PolySynth(6, Tone.MonoSynth).connect(vibrato).connect(pingPong)
+  const synth = new Tone.PolySynth(6, Tone.MonoSynth).connect(vibrato)
   synth.set({
     oscillator: {
       type: 'sine'
