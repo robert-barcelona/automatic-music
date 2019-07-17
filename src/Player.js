@@ -84,9 +84,9 @@ class Player extends React.Component {
         <Slider transmitValues={setDurations} initialState={durations} min={250} max={8000} text={'Note Duration'}/>
         <Slider transmitValues={setSpaces} initialState={spaces} min={100} max={3000} text={'Rests'}/>
         <Slider transmitValues={setNotes} initialState={notes} min={1} max={5} text={'Number of Notes'}/>
-        <Slider transmitValues={setDelayTime} initialState={delayTime} min={.1} max={2} text={'Delay Time'}/>
+       {/* <Slider transmitValues={setDelayTime} initialState={delayTime} min={.1} max={2} text={'Delay Time'}/>
         <Slider transmitValues={setDelayIntensity} initialState={delayIntensity} min={0} max={.9}
-                text={'Delay Intensity'}/>
+                text={'Delay Intensity'}/>*/}
       </div>
     )
 
