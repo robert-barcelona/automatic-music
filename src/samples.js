@@ -4,7 +4,7 @@ import Tone from 'tone'
 
 const SAMPLE_PATH = './piano/'
 
-export const getDelay = (time,intensity) => new Tone.PingPongDelay(time,intensity).toMaster()
+export const getDelay = (time,intensity) => new Tone.PingPongDelay(time,intensity)
 
 
 export const loadSampler = () => {
@@ -60,7 +60,6 @@ export const loadSamples = () => {
   const promises = []
   const players = []
   waves.forEach(url => {
-    console.log(`sample path: ${SAMPLE_PATH}${url}`)
     const player = new Tone.Player(`${SAMPLE_PATH}${url}`).toMaster()
     players.push(player)
     const promise = new Promise((resolve, reject) => {
@@ -70,7 +69,6 @@ export const loadSamples = () => {
     promises.push(promise)
   })
   Promise.all(promises).then(samples => {
-    console.log('got it!', samples)
     const sounds = {}
     for (let i = 0; i < players.length; i++) {
       const marker = waves[i].split('.')[0]

@@ -1,0 +1,26 @@
+@import 'reset';
+
+body {
+
+  background: #43122e;
+
+}
+
+.main {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100vw;
+  height: 100vh;
+
+  .player {
+    padding: 30px;
+    width: 500px;
+    height: 500px;
+    background: white;
+
+    button {
+      margin-bottom:30px;
+    }
+  }
+}

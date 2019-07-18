@@ -7,7 +7,7 @@ import {makeStyles} from '@material-ui/core/styles';
 
 import {loadSampler, loadSynth, loadOneSample, loadSamples, getDelay} from "./samples"
 
-import Slider from './RangeSlider'
+import Slider from './Slider'
 
 
 class Player extends React.Component {
@@ -18,7 +18,7 @@ class Player extends React.Component {
   setSpaces = (spaces) => this.setState({spaces})
   setNotes = (notes) => this.setState({notes})
   setDelayTime = (delayTime) => this.setState({delayTime})
-  setDelayIntensity = (setDelayIntensity) => this.setState({setDelayIntensity})
+  setDelayIntensity = (delayIntensity) => this.setState({delayIntensity})
 
 
   possibles = ['F', 'G#', 'C', 'C#', 'D#', 'G#', 'F']
@@ -31,8 +31,21 @@ class Player extends React.Component {
     durations: [500, 3000],
     spaces: [500, 2000],
     notes: [1, 3],
-    delayTime: .4,
+    delayTime: 2,
     delayIntensity: .25,
+    buttonLabel: 'PLAY'
+  }
+
+  componentDidUpdate(prevProps, prevState) {
+    const {state: {player, delayTime, delayIntensity}} = this
+    if (!player) return
+    if (delayTime !== prevState.delayTime || delayIntensity !== prevState.delayIntensity) {
+      const delay = getDelay(delayTime, delayIntensity).toMaster()
+      player.disconnect()
+
+      player.connect(delay)
+      console.log('new delay', delay)
+    }
   }
 
   aleatoric = (limit, min = 0) => {
@@ -49,44 +62,63 @@ class Player extends React.Component {
     for (let i = 0; i < numberOfNotes; i++) {
       const note = `${possibles[aleatoric(possibles.length)]}${aleatoric(octaves[1], octaves[0])}`
       if (player) player.triggerAttackRelease(note, duration)
-      console.log(note, duration)
     }
     const time = aleatoric(spaces[1], spaces[0])
     setTimeout(this.playIt, time)
 
   }
 
+  buttonClick = (e) => {
+    let action = e.target.textContent || e.target.innerText;
+    action = action.toUpperCase()
+    if (action === 'PLAY') this.startPlay()
+    else this.stopPlay()
+  }
+
+  stopPlay = () => {
+    const {state: { player}} = this
+
+    if (player) {
+      player.disconnect()
+      this.setState({buttonLabel:'PLAY'})
+
+    }
+  }
+
 
   startPlay = async () => {
     try {
-      const {state: {delayTime, delayIntensity}} = this
-      UnmuteButton({context: Tone.context, title: 'hello'})
-
-      const player = await loadSampler()
-      const delay = getDelay(delayTime,delayIntensity)
-      player.connect(delay)
-      this.setState({player})
+      const {state: { delayTime, delayIntensity}} = this
+      let player
+      if (!player)  player = await loadSampler()
+      const delay = getDelay(delayTime, delayIntensity)
+      player.connect(delay).toMaster()
+      this.setState({player,buttonLabel:'STOP'})
       setTimeout(this.playIt, 1000)
+
     } catch (e) {
       console.log(`Error in loading samples (App.js): ${e.message}`)
     }
   }
 
   render() {
-    const {startPlay, setDelayIntensity, setDelayTime, setDurations, setSpaces, setNotes, setOctaves, state: {durations, delayTime, delayIntensity, notes, spaces, octaves}} = this
+    const {buttonClick, setDelayIntensity, setDelayTime, setDurations, setSpaces, setNotes, setOctaves, state: {buttonLabel,durations, delayTime, delayIntensity, notes, spaces, octaves}} = this
     return (
 
-      <div className="App">
-        <Button variant="contained" onClick={startPlay}>
-          Play
+      <div className="player">
+        <Button variant="outlined" onClick={buttonClick}>
+          {buttonLabel}
         </Button>
-        <Slider transmitValues={setOctaves} initialState={octaves} min={0} max={8} text={'Octave Range'}/>
-        <Slider transmitValues={setDurations} initialState={durations} min={250} max={8000} text={'Note Duration'}/>
-        <Slider transmitValues={setSpaces} initialState={spaces} min={100} max={3000} text={'Rests'}/>
-        <Slider transmitValues={setNotes} initialState={notes} min={1} max={5} text={'Number of Notes'}/>
-       {/* <Slider transmitValues={setDelayTime} initialState={delayTime} min={.1} max={2} text={'Delay Time'}/>
-        <Slider transmitValues={setDelayIntensity} initialState={delayIntensity} min={0} max={.9}
-                text={'Delay Intensity'}/>*/}
+        <Slider type={'range'} transmitValues={setOctaves} initialState={octaves} min={0} max={8}
+                text={'Octave Range'}/>
+        <Slider type={'range'} transmitValues={setDurations} initialState={durations} min={250} max={8000}
+                text={'Note Duration'}/>
+        <Slider type={'range'} transmitValues={setSpaces} initialState={spaces} min={100} max={3000} text={'Rests'}/>
+        <Slider type={'range'} transmitValues={setNotes} initialState={notes} min={1} max={5} text={'Number of Notes'}/>
+        <Slider type={'continuous'} transmitValues={setDelayTime} initialState={delayTime} min={.1} max={2.0}
+                text={'Delay Time'}/>
+        <Slider type={'continuous'} transmitValues={setDelayIntensity} initialState={delayIntensity} min={0.0} max={1.0}
+                text={'Delay Intensity'}/>
       </div>
     )
 

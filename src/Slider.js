@@ -13,12 +13,11 @@ function valuetext(value) {
   return `${value}`;
 }
 
-const  RangeSlider = (props) => {
-  const {transmitValues, initialState, text, min, max} = props
-  console.log(initialState)
+export default  (props) => {
+  const {type,transmitValues, initialState, text, min, max} = props
   const classes = useStyles();
   const [value, setValue] = React.useState(initialState);
-
+  const sliderType = `${type}-slider`
   const handleChange = (event, newValue) => {
     setValue(newValue);
     transmitValues(newValue)
@@ -33,7 +32,7 @@ const  RangeSlider = (props) => {
         value={value}
         onChange={handleChange}
         valueLabelDisplay="auto"
-        aria-labelledby="range-slider"
+        aria-labelledby={sliderType}
         getAriaValueText={valuetext}
         min={min}
         max={max}
@@ -42,4 +41,3 @@ const  RangeSlider = (props) => {
   );
 }
 
-export default RangeSlider
